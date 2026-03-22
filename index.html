@@ -340,15 +340,25 @@
             }
         }
 
-        function sendGmail() {
+       function sendGmail() {
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     
     setTimeout(() => {
         const myEmail = "miguel02.sajulga@gmail.com";
-        const subject = "Anniversary Date Choice! ❤️";
-        const body = "Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️";
+        const subject = encodeURIComponent("Anniversary Date Choice! ❤️");
+        const body = encodeURIComponent("Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️");
         
-        window.location.href = `mailto:${myEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        // Check if the user is on a mobile device (iPhone/Android)
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // On her iPhone 11, this triggers the system's mail app
+            window.location.href = `mailto:${myEmail}?subject=${subject}&body=${body}`;
+        } else {
+            // On a laptop, this forces the Gmail web composer to avoid Outlook
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${myEmail}&su=${subject}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+        }
     }, 800);
 }
 
