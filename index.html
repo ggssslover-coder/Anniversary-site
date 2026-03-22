@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our 2nd Anniversary</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --ios-blue: #007AFF;
+            --mac-gradient: linear-gradient(180deg, #6282e6 0%, #d57ee0 100%);
+            --ios-bg: #F2F2F7;
+            --ios-secondary: #8E8E93;
+            --glass-white: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background: var(--mac-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .iphone-screen {
+            background: var(--ios-bg);
+            width: 100%;
+            max-width: 390px;
+            height: 92vh;
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 8px solid #1a1a1a;
+        }
+
+        #lock-screen {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+ 
+        #notification {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            transition: 0.5s ease;
+        }
+
+        .header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(242, 242, 247, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 0.5px solid #d1d1d6;
+            z-index: 50;
+        }
+
+        .back-link { color: var(--ios-blue); font-size: 17px; cursor: pointer; visibility: hidden; }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .active { display: flex; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+    
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 25px;
+            height: 50px;
+        }
+
+        .choice-btn {
+            height: 50px;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
+        }
+
+        .btn-yes { background: var(--ios-blue); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); }
+        .btn-no { background: rgba(255, 255, 255, 0.5); color: #FF3B30; }
+        .choice-btn:active { transform: scale(0.96); opacity: 0.8; }
+
+   
+        .memories-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .mem-item { background: #e5e5ea; border-radius: 12px; aspect-ratio: 1/1; overflow: hidden; position: relative; }
+        .mem-item img, .mem-item video { width: 100%; height: 100%; object-fit: cover; }
+        .vid-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
+
+   
+        .klook-card {
+            background: var(--glass-white);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+
+        .klook-img-container { position: relative; width: 100%; height: 170px; }
+        .klook-img { width: 100%; height: 100%; object-fit: cover; }
+        .promo-badge { position: absolute; top: 10px; right: 10px; background: #FF5B00; color: white; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+
+        .klook-body { padding: 16px; text-align: left; }
+        .itinerary-list { margin: 12px 0; padding: 0; list-style: none; }
+        .itinerary-list li { font-size: 13px; color: #3a3a3c; margin-bottom: 7px; display: flex; }
+        .itinerary-list li b { width: 75px; flex-shrink: 0; color: #1c1c1e; }
+
+
+        .notes-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .notes-header { color: #f2a154; font-weight: bold; font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+    </style>
+</head>
+<body>
+
+    <div class="iphone-screen">
+        <div id="lock-screen" onclick="unlock()">
+            <h1 id="lock-time" style="font-size: 64px; font-weight: 200; margin: 0; color: #333;">00:00</h1>
+            <p style="font-size: 18px; color: #666; margin-top: -10px;">Tap to open ❤️</p>
+        </div>
+
+        <div id="notification">
+            <div style="width: 38px; height: 38px; background: var(--ios-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">M</div>
+            <div>
+                <div style="font-weight: 600; font-size: 14px;">love 💕</div>
+                <div style="font-size: 13px;">Let's go on a date!!! ❤️</div>
+            </div>
+            <div style="margin-left: auto; font-size: 11px; color: var(--ios-secondary);">now</div>
+        </div>
+
+        <div class="header">
+            <span id="backBtn" class="back-link" onclick="goBack()">❮ Back</span>
+            <span style="font-weight: 600;">2nd Anniversary</span>
+            <div style="width: 50px;"></div>
+        </div>
+
+        <div class="content active" id="p1" style="text-align: center; justify-content: center;">
+            <h1 style="font-size: 26px;">It's our anniversary soon!</h1>
+            <p style="color: var(--ios-secondary);">Care to have fun with me?</p>
+            <p style="font-size: 12px; color: #cecece;">Try the NO button and you'll see hmp</p>
+            
+            <div class="button-grid">
+                <button class="choice-btn btn-yes" onclick="nav(2)">Yes!</button>
+                <button id="no1" class="choice-btn btn-no" onmouseover="dodge('no1')">No</button>
+            </div>
+        </div>
+
+        <div class="content" id="p2">
+            <h2 style="text-align: center;">It's been 2 wholeee years... ❤️</h2>
+            <div class="memories-container">
+                <div class="mem-item"><img src="pic1.jpg"></div>
+                <div class="mem-item"><img src="pic2.jpg"></div>
+                <div class="mem-item"><span class="vid-badge">VIDEO</span><video muted loop><source src="vid1.mp4"></video></div>
+                <div class="mem-item"><span class="vid-badge">VIDEO</span><video muted loop><source src="vid2.mp4"></video></div>
+                <div class="mem-item"><img src="pic3.jpg"></div>
+                <div class="mem-item"><img src="pic4.jpg"></div>
+                <div class="mem-item"><img src="pic5.jpg"></div>
+                <div class="mem-item"><img src="pic6.jpg"></div>
+                <div class="mem-item"><span class="vid-badge">VIDEO</span><video muted loop><source src="vid3.mp4"></video></div>
+                <div class="mem-item"><span class="vid-badge">VIDEO</span><video muted loop><source src="vid4.mp4"></video></div>
+                <div class="mem-item"><img src="pic7.jpg"></div>
+                <div class="mem-item"><img src="pic8.jpg"></div>
+                <div class="mem-item"><img src="pic9.jpg"></div>
+                <div class="mem-item"><img src="pic10.jpg"></div>
+                <div class="mem-item"><img src="pic11.jpg"></div>
+                <div class="mem-item"><img src="pic12.jpg"></div>
+                <div class="mem-item"><img src="pic13.jpg"></div>
+                <div class="mem-item"><img src="pic14.jpg"></div>
+                <div class="mem-item"><img src="pic15.jpg"></div>
+                <div class="mem-item"><img src="pic16.jpg"></div>
+            </div>
+            <button class="choice-btn btn-yes" style="width: 100%; margin: 25px 0;" onclick="nav(3)">Next Page ➔</button>
+        </div>
+
+        <div class="content" id="p3" style="text-align: center; justify-content: center;">
+            <h2>Are you ready to choose where to have fun?</h2>
+            <div class="button-grid">
+                <button class="choice-btn btn-yes" onclick="nav(4)">Yes!</button>
+                <button id="no2" class="choice-btn btn-no" onmouseover="dodge('no2')">No</button>
+            </div>
+        </div>
+
+        <div class="content" id="p4">
+            <h2 style="text-align: center;">Select Our Adventure</h2>
+            <div class="klook-card">
+                <div class="klook-img-container">
+                    <img src="2e.jpg" class="klook-img">
+                    <span class="promo-badge">Love Journey</span>
+                </div>
+                <div class="klook-body">
+                    <h3>🐠 Manila Ocean Park (April 1)</h3>
+                    <ul class="itinerary-list">
+                        <li><b>07:00 AM</b> Start of Love Journey :)</li>
+                        <li><b>10:00 AM</b> Arrival time! Hehe</li>
+                        <li><b>11:00 AM</b> Explore & Take pics!!</li>
+                        <li><b>12:00 PM</b> Eat at Resto Grill Diner</li>
+                        <li><b>01:00 PM</b> Special aquarium date</li>
+                        <li><b>04:00 PM</b> Time to head home!</li>
+                    </ul>
+                    <button class="choice-btn btn-yes" style="width: 100%;" onclick="confirmDate('Manila Ocean Park')">Select This Option</button>
+                </div>
+            </div>
+
+            <div class="klook-card">
+                <div class="klook-img-container">
+                    <img src="ArtinIsland2.jpg" class="klook-img">
+                    <span class="promo-badge">Staycation</span>
+                </div>
+                <div class="klook-body">
+                    <h3>🎨 Art in Island + Staycation (April 2)</h3>
+                    <ul class="itinerary-list">
+                        <li><b>07:00 AM</b> Start of Journey!!</li>
+                        <li><b>10:00 AM</b> Arrive Cubao / Check-in</li>
+                        <li><b>11:00 AM</b> Art in Island Photoshoot</li>
+                        <li><b>02:00 PM</b> Eat at our room hehe</li>
+                        <li><b>03:00 PM</b> Bebetime max levellll</li>
+                        <li><b>05:00 PM</b> Time to head home!</li>
+                    </ul>
+                    <button class="choice-btn btn-yes" style="width: 100%; background: #5856D6;" onclick="confirmDate('Art in Island')">Select This Option</button>
+                </div>
+            </div>
+            <div style="height: 30px;"></div>
+        </div>
+
+        <div class="content" id="p5">
+            <h2 style="text-align: center;">Noted My Love!</h2>
+            <div class="notes-container">
+                <div class="notes-header">From me, to you hehe</div>
+                <p><b>Dearest Love,</b></p>
+                <p>Grabee, can't believe it's been 2 years already since God gifted you to me. I'm so emotional now thinking 
+                    na I have the best girl in the world as my girlfriend huhu. I know this letter is early hehe but I created This
+                    po for you to make your choice regarding our date po hehe, really looking forward don! I won't make this too long,
+                    the rest, I'll say it to you on that day okiie? How thankful ako sayo, how you make me feel the luckiest man alive lagi, and 
+                    how you make me feel loved and cared for po huhu. I'm sorry if I'm too lousy sa things and I can't handle us better minsan.
+                    But please do know na I'll never stop trying to make you feel the way I do okiee? I know how you forget to take care of yourself 
+                    because you focus too much in your goals (which I greatly love about you), but please still always prioritize  yourself okiie? Don't worry Love
+                    soon I'll be the one to take care of you so you can reach your hand as high as you want, and aim for all of your dreams at ease, with me ofc hehe.
+                    Please bear with flaws, failures, and immaturities love huhu, I promise to give you every love that you want, and deserves. I love you so soo so muchhh
+                    Please always take care of yourself love ha? Tho advance, HAPPY 2ND ANNIVERSARYYYY MY MOST BELOVED GIRLLLL!! I love youuu so muchhhh no words can ever describe.
+                    Click mo po yung button sa dulo and I'll know ano pinili mo hehe. The rest of my greetings, sa mismong date na hehe. I LOVE YOUUU HAPPY ANNIVERSARY LOVEYY!!
+                </p>
+                <p>Love always,<br><b>Miguel</b></p>
+            </div>
+            <button class="choice-btn btn-yes" style="width: 100%; margin-top: 30px;" onclick="sendGmail()">Finish & Send ❤️</button>
+        </div>
+    </div>
+
+    <script>
+        let current = 1;
+        let choice = "";
+
+        function unlock() {
+            document.getElementById('lock-screen').style.transform = 'translateY(-100%)';
+        }
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('lock-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function nav(n) {
+            document.querySelectorAll('.content').forEach(p => p.classList.remove('active'));
+            document.getElementById('p' + n).classList.add('active');
+            current = n;
+            document.getElementById('backBtn').style.visibility = (n === 1) ? 'hidden' : 'visible';
+            document.getElementById('notification').style.display = (n === 1) ? 'flex' : 'none';
+            if(n === 2) document.querySelectorAll('video').forEach(v => v.play());
+        }
+
+        function goBack() { if(current > 1) nav(current - 1); }
+
+        function dodge(id) {
+            const btn = document.getElementById(id);
+            btn.style.position = 'absolute';
+            btn.style.left = Math.random() * 50 + '%';
+            btn.style.top = (Math.random() * 100 - 50) + 'px';
+        }
+
+        function confirmDate(name) {
+            if(confirm("Confirm " + name + " for our date?")) {
+                choice = name;
+                nav(5);
+            }
+        }
+
+        function sendGmail() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            setTimeout(() => {
+                const myEmail = "miguel02.sajulga@gmail.com";
+                const subject = encodeURIComponent("Anniversary Date Choice! ❤️");
+                const body = encodeURIComponent("Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️");
+                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${myEmail}&su=${subject}&body=${body}`, '_blank');
+            }, 800);
+        }
+
+        setTimeout(() => { document.getElementById('notification').style.opacity = '0'; }, 4000);
+    </script>
+</body>
+</html>
