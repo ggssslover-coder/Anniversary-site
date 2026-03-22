@@ -341,14 +341,16 @@
         }
 
         function sendGmail() {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            setTimeout(() => {
-                const myEmail = "miguel02.sajulga@gmail.com";
-                const subject = encodeURIComponent("Anniversary Date Choice! ❤️");
-                const body = encodeURIComponent("Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️");
-                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${myEmail}&su=${subject}&body=${body}`, '_blank');
-            }, 800);
-        }
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    
+    setTimeout(() => {
+        const myEmail = "miguel02.sajulga@gmail.com";
+        const subject = "Anniversary Date Choice! ❤️";
+        const body = "Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️";
+        
+        window.location.href = `mailto:${myEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }, 800);
+}
 
         setTimeout(() => { document.getElementById('notification').style.opacity = '0'; }, 4000);
     </script>
