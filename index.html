@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our 2nd Anniversary</title>
+    <title>Our Anniversary Date</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -41,9 +41,60 @@
             border: 8px solid #1a1a1a;
         }
 
+        /* Status Bar (Time, Wifi, Battery) */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 2500;
+            color: #000;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Dynamic Island */
+        .dynamic-island {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 35px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 2000;
+        }
+
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 135px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            z-index: 2000;
+            transition: background 0.3s ease;
+        }
+
         #lock-screen {
             position: absolute;
             inset: 0;
+            color:#000;
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px);
             z-index: 1000;
@@ -55,10 +106,12 @@
             cursor: pointer;
         }
 
- 
+        /* Lock screen time/text colors */
+        #lock-screen h1, #lock-screen p { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
         #notification {
             position: absolute;
-            top: 15px;
+            top: 60px;
             left: 10px;
             right: 10px;
             background: rgba(255, 255, 255, 0.85);
@@ -74,10 +127,9 @@
         }
 
         .header {
-            padding: 15px 20px;
+            padding: 48px 20px 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             background: rgba(242, 242, 247, 0.8);
             backdrop-filter: blur(15px);
             border-bottom: 0.5px solid #d1d1d6;
@@ -88,7 +140,7 @@
 
         .content {
             flex: 1;
-            padding: 20px;
+            padding: 20px 20px 40px 20px;
             overflow-y: auto;
             display: none;
             flex-direction: column;
@@ -98,7 +150,7 @@
         .active { display: flex; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-    
+        /* Existing Grid & Buttons */
         .button-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -123,7 +175,6 @@
         .btn-no { background: rgba(255, 255, 255, 0.5); color: #FF3B30; }
         .choice-btn:active { transform: scale(0.96); opacity: 0.8; }
 
-   
         .memories-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -134,7 +185,7 @@
         .mem-item img, .mem-item video { width: 100%; height: 100%; object-fit: cover; }
         .vid-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold;}
 
-   
+        /* Card styles for Manila Ocean Park/Art in Island */
         .klook-card {
             background: var(--glass-white);
             backdrop-filter: blur(10px);
@@ -155,7 +206,7 @@
         .itinerary-list li { font-size: 13px; color: #3a3a3c; margin-bottom: 7px; display: flex; }
         .itinerary-list li b { width: 75px; flex-shrink: 0; color: #1c1c1e; }
 
-
+        /* Letter container */
         .notes-container {
             background: white;
             border-radius: 15px;
@@ -170,9 +221,25 @@
 <body>
 
     <div class="iphone-screen">
+        <div class="status-bar" id="status-bar">
+            <div id="status-time">00:00</div>
+            <div class="status-right">
+                <span>ᯤ</span>
+                <span>✈︎</span>
+                <span>20%</span>
+            </div>
+        </div>
+
+        <div class="dynamic-island"></div>
+        <div class="home-indicator" id="home-bar"></div>
+
         <div id="lock-screen" onclick="unlock()">
-            <h1 id="lock-time" style="font-size: 64px; font-weight: 200; margin: 0; color: #333;">00:00</h1>
-            <p style="font-size: 18px; color: #666; margin-top: -10px;">Tap to open ❤️</p>
+            <h1 id="lock-time" style="font-size: 64px; font-weight: 200; margin: 0; color: black;">00:00</h1>
+            <p style="font-size: 18px; margin-top: -10px; color:#000;">Tap to open ❤️</p>
+        </div>
+
+        <div class="header">
+            <span id="backBtn" class="back-link" onclick="goBack()">❮ Back</span>
         </div>
 
         <div id="notification">
@@ -182,12 +249,6 @@
                 <div style="font-size: 13px;">Let's go on a date!!! ❤️</div>
             </div>
             <div style="margin-left: auto; font-size: 11px; color: var(--ios-secondary);">now</div>
-        </div>
-
-        <div class="header">
-            <span id="backBtn" class="back-link" onclick="goBack()">❮ Back</span>
-            <span style="font-weight: 600;">2nd Anniversary</span>
-            <div style="width: 50px;"></div>
         </div>
 
         <div class="content active" id="p1" style="text-align: center; justify-content: center;">
@@ -244,8 +305,9 @@
                     <span class="promo-badge">Love Journey</span>
                 </div>
                 <div class="klook-body">
-                    <h3>🐠 Manila Ocean Park (April 1)</h3>
+                    <h3>🐠 Manila Ocean Park + Digital Museum (Not sure pa huhu)</h3>
                     <ul class="itinerary-list">
+                        <li><b>Itinerary:</b> (April 1, 7am - 4pm)</li>
                         <li><b>07:00 AM</b> Start of Love Journey :)</li>
                         <li><b>10:00 AM</b> Arrival time! Hehe</li>
                         <li><b>11:00 AM</b> Explore & Take pics!!</li>
@@ -263,8 +325,9 @@
                     <span class="promo-badge">Staycation</span>
                 </div>
                 <div class="klook-body">
-                    <h3>🎨 Art in Island + Staycation (Changed to April 1 din huhu)</h3>
+                    <h3>🎨 Art in Island + Staycation </h3>
                     <ul class="itinerary-list">
+                        <li><b>Itinerary:</b> (Changed to April 1 huhu, 7am - 5pm)</li>
                         <li><b>07:00 AM</b> Start of Journey!!</li>
                         <li><b>10:00 AM</b> Arrive Cubao / Check-in</li>
                         <li><b>11:00 AM</b> Art in Island Photoshoot</li>
@@ -275,7 +338,6 @@
                     <button class="choice-btn btn-yes" style="width: 100%; background: #5856D6;" onclick="confirmDate('Art in Island')">Select This Option</button>
                 </div>
             </div>
-            <div style="height: 30px;"></div>
         </div>
 
         <div class="content" id="p5">
@@ -293,7 +355,7 @@
                     soon I'll be the one to take care of you so you can reach your hand as high as you want, and aim for all of your dreams at ease, with me ofc hehe.
                     Please bear with flaws, failures, and immaturities love huhu, I promise to give you every love that you want, and deserves. I love you so soo so muchhh
                     Please always take care of yourself love ha? Tho advance, HAPPY 2ND ANNIVERSARYYYY MY MOST BELOVED GIRLLLL!! I love youuu so muchhhh no words can ever describe.
-                    Click mo po yung button sa dulo and I'll know ano pinili mo hehe. The rest of my greetings, sa mismong date na hehe. I LOVE YOUUU HAPPY ANNIVERSARY LOVEYY!!
+                    Click mo po yung button sa dulo and I'll know ano pinili mo hehe (Not sure pa sa MOP if kasama DNM huhu). The rest of my greetings, sa mismong date na hehe. I LOVE YOUUU HAPPY ANNIVERSARY LOVEYY!!
                 </p>
                 <p>Love always,<br><b>Miguel</b></p>
             </div>
@@ -307,10 +369,15 @@
 
         function unlock() {
             document.getElementById('lock-screen').style.transform = 'translateY(-100%)';
+            document.getElementById('home-bar').style.background = 'rgba(0, 0, 0, 0.8)';
+            document.getElementById('status-bar').style.color = '#000';
         }
+
         function updateTime() {
             const now = new Date();
-            document.getElementById('lock-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('lock-time').innerText = timeStr;
+            document.getElementById('status-time').innerText = timeStr;
         }
         setInterval(updateTime, 1000);
         updateTime();
@@ -340,27 +407,24 @@
             }
         }
 
-       function sendGmail() {
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    
-    setTimeout(() => {
-        const myEmail = "miguel02.sajulga@gmail.com";
-        const subject = encodeURIComponent("Anniversary Date Choice! ❤️");
-        const body = encodeURIComponent("Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️");
-        
-        // Check if the user is on a mobile device (iPhone/Android)
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        function sendGmail() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            setTimeout(() => {
+                const myEmail = "miguel02.sajulga@gmail.com";
+                const subject = encodeURIComponent("Anniversary Date Choice! ❤️");
+                const body = encodeURIComponent("Hey loveyyy! I've chosen the " + choice + " date! See youu hehe. I love you! ❤️");
+                
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        if (isMobile) {
-            // On her iPhone 11, this triggers the system's mail app
-            window.location.href = `mailto:${myEmail}?subject=${subject}&body=${body}`;
-        } else {
-            // On a laptop, this forces the Gmail web composer to avoid Outlook
-            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${myEmail}&su=${subject}&body=${body}`;
-            window.open(gmailUrl, '_blank');
+                if (isMobile) {
+                    window.location.href = `mailto:${myEmail}?subject=${subject}&body=${body}`;
+                } else {
+                    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${myEmail}&su=${subject}&body=${body}`;
+                    window.open(gmailUrl, '_blank');
+                }
+            }, 800);
         }
-    }, 800);
-}
 
         setTimeout(() => { document.getElementById('notification').style.opacity = '0'; }, 4000);
     </script>
